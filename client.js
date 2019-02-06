@@ -99,33 +99,53 @@ function insertTable_Courses(course ,pool){
 }
 
 
+function insertTable_EnrolledCourse(course ,user ,pool){
+    return pool.request()
+        .input('courseid', sql.Int, course.id)
+        .input('userid', sql.Int, user.id)
+
+        .query('Insert into xx_Moodle_EnrolledCourses (courseid,userid) ' +
+            'values (@courseid,@userid)')
+        .then(result => {
+            //console.dir(result)
+        })
+}
+
 function insertTable_Users(user ,pool){
 
     return pool.request()
         .input('id',sql.Int,user.id)
         .query('select 1 from xx_Moodle_Users where id=@id')
         .then(result =>{
-            console.log(result)
-            return pool.request()
-                .input('id', sql.Int, user.id)
-                .input('username', sql.NVarChar(255), user.username)
-                .input('firstname', sql.NVarChar(255), user.firstname)
-                .input('lastname', sql.NVarChar(255), user.lastname)
-                .input('fullname', sql.NVarChar(500), user.fullname)
-                .input('email', sql.NVarChar(255), user.email)
-                .input('phone1', sql.NVarChar(255), user.phone1)
-                .input('phone2', sql.NVarChar(255), user.phone2)
-                .input('department', sql.NVarChar(255), user.department)
-                .input('institution', sql.NVarChar(255), user.institution)
-                .input('idnumber', sql.NVarChar(255), user.idnumber)
-                .input('firstaccess', sql.Int, user.firstaccess)
-                .input('lastaccess', sql.Int, user.lastaccess)
 
-                .query('Insert into xx_Moodle_Users (id,username,firstname,lastname,fullname,email,phone1,phone2,department,institution,idnumber,firstaccess,lastaccess) ' +
-                    'values (@id,@username,@firstname,@lastname,@fullname,@email,@phone1,@phone2,@department,@institution,@idnumber,@firstaccess,@lastaccess)')
-                .then(result => {
-                    //console.dir(result)
-                })
+            if(result.rowAffected){
+                if(result.rowAffected[0] == 0){
+                    console.log('Insert user '+user.id)
+                    return pool.request()
+                        .input('id', sql.Int, user.id)
+                        .input('username', sql.NVarChar(255), user.username)
+                        .input('firstname', sql.NVarChar(255), user.firstname)
+                        .input('lastname', sql.NVarChar(255), user.lastname)
+                        .input('fullname', sql.NVarChar(500), user.fullname)
+                        .input('email', sql.NVarChar(255), user.email)
+                        .input('phone1', sql.NVarChar(255), user.phone1)
+                        .input('phone2', sql.NVarChar(255), user.phone2)
+                        .input('department', sql.NVarChar(255), user.department)
+                        .input('institution', sql.NVarChar(255), user.institution)
+                        .input('idnumber', sql.NVarChar(255), user.idnumber)
+                        .input('firstaccess', sql.Int, user.firstaccess)
+                        .input('lastaccess', sql.Int, user.lastaccess)
+
+                        .query('Insert into xx_Moodle_Users (id,username,firstname,lastname,fullname,email,phone1,phone2,department,institution,idnumber,firstaccess,lastaccess) ' +
+                            'values (@id,@username,@firstname,@lastname,@fullname,@email,@phone1,@phone2,@department,@institution,@idnumber,@firstaccess,@lastaccess)')
+                        .then(result => {
+                            //console.dir(result)
+                        })
+                }else{
+                    console.log('Exist user '+user.id)
+                }
+            }
+
         });
 }
 
@@ -151,6 +171,7 @@ sql.connect(config).then(pool => {
         .then(function (response) {
             truncate_table(pool,'xx_Moodle_Courses')
             truncate_table(pool,'xx_Moodle_Users')
+            truncate_table(pool,'xx_Moodle_EnrolledCourses')
 
             var course_data = response.data;
             for (const course of course_data) {
@@ -161,9 +182,12 @@ sql.connect(config).then(pool => {
                             var user_data = response.data;
                             for (const user of user_data) {
                                 insertTable_Users(user,pool)
+                                insertTable_EnrolledCourse(course,user,pool)
                             }
                         }
-                    )
+                    ).catch(function (error) {
+                        console.log('API : Moodle : enrolled_courses : error '+error);
+                    })
             }
             console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
