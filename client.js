@@ -42,11 +42,26 @@ pools.then( pool => {
 );
 */
 
-function insertTable(course ,pool){
+function insertTable_CourseCategories(course ,pool){
 
     return pool.request()
         .input('id', sql.Int, course.id)
-        .query('Insert into xx_moodle_core_course_get_categories (id) values (@id)')
+        .input('name', sql.NVarChar(255), course.name)
+        .input('idnumber', sql.NVarChar(255), course.idnumber)
+        .input('description', sql.NVarChar(255), course.description)
+        .input('descriptionformat', sql.int, course.descriptionformat)
+        .input('parent', sql.int, course.parent)
+        .input('sortorder', sql.int, course.sortorder)
+        .input('coursecount', sql.int, course.coursecount)
+        .input('visible', sql.int, course.visible)
+        .input('visibleold', sql.int, course.visibleold)
+        .input('timemodified', sql.int, course.timemodified)
+        .input('depth', sql.int, course.depth)
+        .input('path', sql.NVarChar(1000), course.path)
+
+
+        .query('Insert into xx_Moodle_CourseCategories (id,name,idnumber,description,descriptionformat,parent,sortorder,coursecount,visible,visibleold,timemodified,depth,path) ' +
+            'values (@id,@name,@idnumber,@description,@descriptionformat,@parent,@sortorder,@coursecount,@visible,@visibleold,@timemodified,@depth,@path)')
         .then(result => {
             console.dir(result)
         })
