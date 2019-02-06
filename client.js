@@ -184,7 +184,7 @@ sql.connect(config).then(pool => {
 
                 //do enrolled user
                 console.info('loop '+loop)
-                logger.log('loop '+loop)
+                logger.info('loop '+loop)
 
                 loop = loop + 1
                 axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
