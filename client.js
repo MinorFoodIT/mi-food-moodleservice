@@ -71,7 +71,7 @@ function insertTable_CourseCategories(course ,pool){
         .query('Insert into xx_Moodle_CourseCategories (id,name,idnumber,description,descriptionformat,parent,sortorder,coursecount,visible,visibleold,timemodified,depth,path) ' +
             'values (@id,@name,@idnumber,@description,@descriptionformat,@parent,@sortorder,@coursecount,@visible,@visibleold,@timemodified,@depth,@path)')
         .then(result => {
-            console.dir(result)
+            //console.dir(result)
         })
 }
 
@@ -94,7 +94,7 @@ function insertTable_Courses(course ,pool){
         .query('Insert into xx_Moodle_Courses (id,shortname,categoryid,categorysortorder,fullname,displayname,idnumber,startdate,enddate,visible,enablecompletion,completionnotify) ' +
             'values (@id,@shortname,@categoryid,@categorysortorder,@fullname,@displayname,@idnumber,@startdate,@enddate,@visible,@enablecompletion,@completionnotify)')
         .then(result => {
-            console.dir(result)
+            //console.dir(result)
         })
 }
 sql.connect(config).then(pool => {
@@ -106,6 +106,7 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
                 insertTable_CourseCategories(course,pool)
             }
+            console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
             console.log('API : Moodle : core_course_get_categories : error '+error);
@@ -121,6 +122,7 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
                 insertTable_Courses(course,pool)
             }
+            console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
             console.log('API : Moodle : core_courses : error '+error);
