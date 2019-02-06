@@ -1,0 +1,16 @@
+{
+  "name": "mi-food-moodleservice",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./client.js"
+  },
+  "dependencies": {
+    "async": "^2.6.1",
+    "axios": "^0.18.0",
+    "debug": "~2.6.9",
+    "dotenv": "^6.2.0",
+    "morgan": "~1.9.0",
+    "tedious": "^4.1.3"
+  }
+}
