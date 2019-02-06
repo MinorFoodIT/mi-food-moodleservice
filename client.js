@@ -173,6 +173,7 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_Users')
             truncate_table(pool,'xx_Moodle_EnrolledCourses')
 
+            var faild_course = []
             var course_data = response.data;
             for (const course of course_data) {
                 insertTable_Courses(course,pool)
@@ -180,15 +181,24 @@ sql.connect(config).then(pool => {
                 axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                     .then(function (response){
                             var user_data = response.data;
-                            for (const user of user_data) {
-                                insertTable_Users(user,pool)
-                                insertTable_EnrolledCourse(course,user,pool)
+                            if(response.data.exception){
+                                console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
+                            }else{
+                                for (const user of user_data) {
+                                    insertTable_Users(user,pool)
+                                    insertTable_EnrolledCourse(course,user,pool)
+                                }
                             }
                         }
                     ).catch(function (error) {
+                        /*
+                        * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
+                        * */
+                        faild_course.append(course.id)
                         console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
+            console.log('failed course '+faild_course)
             console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
