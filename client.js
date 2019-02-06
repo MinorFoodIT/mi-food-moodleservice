@@ -10,8 +10,12 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 // Create connection to database
 var dbconfig = {
-    userName: config.userName, // update me
-    password: config.password, // update me
+    authentication: {
+        options: {
+            userName: config.userName, // update me
+            password: config.password // update me
+        }
+    },
     server: config.server,
     options: {
         database: config.database
