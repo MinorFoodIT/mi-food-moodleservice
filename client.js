@@ -151,7 +151,7 @@ function insertTable_Users(user ,pool){
 }
 
 
-function redoRequest(courseid){
+function redoRequest(courseid,pool){
 
         axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
             .then(function (response){
@@ -226,7 +226,7 @@ sql.connect(config).then(pool => {
 
                 loop = loop + 1
 
-                redoRequest(course.id)
+                redoRequest(course.id,pool)
 
             }
 
