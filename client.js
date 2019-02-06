@@ -1,5 +1,6 @@
 const axios = require('axios');
 var config = require('./config/config')
+var logger = require('./config/winston')
 
 const sql = require('mssql')
 
@@ -181,6 +182,8 @@ sql.connect(config).then(pool => {
 
                 //do enrolled user
                 console.log('loop '+loop)
+                logger.log('loop '+loop)
+
                 loop = loop + 1
                 axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                     .then(function (response){
@@ -202,6 +205,9 @@ sql.connect(config).then(pool => {
                         console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
+
+            logger.log('failed course '+faild_course)
+
             console.log('failed course '+faild_course)
             console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
