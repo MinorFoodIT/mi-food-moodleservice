@@ -50,11 +50,12 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
 
                 console.log(course.id);
-
-
-                return pool.request()
+                pool.request()
                     .input('id', sql.Int, course.id)
                     .query('Insert into xx_moodle_core_course_get_categories (id) values (@id)')
+                    .then(result => {
+                        console.dir(result)
+                    })
 
 
             }
