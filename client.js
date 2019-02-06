@@ -23,8 +23,31 @@ var dbconfig = {
 //var connection = new Connection(dbconfig);
 
 const pools = new sql.ConnectionPool(dbconfig, err => {
-    console.log('SQL : Create Pools : error '+err)
-    throw err
+    if(err) console.log('SQL : Create Pools : error '+err)
+
+    axios.get('/webservice/rest/server.php?wstoken='+config.token+'&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
+        .then(function (response) {
+            var course_data = response.data;
+            for(const course of course_data){
+
+                console.log(course.id);
+                pools.then( pool => {
+                        pool.request() // or: new sql.Request(pool)
+                            .input('id', sql.Int, course.id)
+                            .query('insert into xx_moodle_core_course_get_categories(id) valuse(@id)')
+                    }
+                );
+            }
+
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .then(function () {
+            // always executed
+        });
+
 });
 
 pools.on('error', err => {
@@ -59,25 +82,3 @@ sql.on('error', err => {
 
 
 
-axios.get('/webservice/rest/server.php?wstoken='+config.token+'&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
-    .then(function (response) {
-        var course_data = response.data;
-        for(const course of course_data){
-
-            console.log(course.id);
-            pools.then( pool => {
-                    pool.request() // or: new sql.Request(pool)
-                    .input('id', sql.Int, course.id)
-                    .query('insert into xx_moodle_core_course_get_categories(id) valuse(@id)')
-                }
-            );
-        }
-
-    })
-    .catch(function (error) {
-        // handle error
-        console.log(error);
-    })
-    .then(function () {
-        // always executed
-    });
