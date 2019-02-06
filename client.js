@@ -186,7 +186,7 @@ sql.connect(config).then(pool => {
                             }
                         }
                     ).catch(function (error) {
-                        console.log('API : Moodle : enrolled_courses : error '+error);
+                        console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
             console.log('Insert course catogeries '+response.data.length+' row(s)')
