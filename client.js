@@ -9,10 +9,16 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 // Create connection to database
 var dbconfig = {
-    user: config.userName, // update me
+    user: config.user, // update me
     password: config.password ,// update me
     server: config.server,
-    database: config.database
+    database: config.database,
+    driver: 'msnodesql',
+    options: {
+        trustedConnection: true
+    },
+    connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};"
+
 }
 //var connection = new Connection(dbconfig);
 
