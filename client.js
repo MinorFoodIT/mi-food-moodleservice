@@ -1,36 +1,50 @@
 const axios = require('axios');
 var config = require('./config/config')
 
-var Connection = require('tedious').Connection;
-var Request = require('tedious').Request;
-var TYPES = require('tedious').TYPES;
+const sql = require('mssql')
 
 axios.defaults.baseURL = 'https://learning.minorfood.com';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
+
 // Create connection to database
 var dbconfig = {
-    authentication: {
-        options: {
-            userName: config.userName, // update me
-            password: config.password // update me
-        }
-    },
+    user: config.userName, // update me
+    password: config.password ,// update me
     server: config.server,
-    options: {
-        database: config.database
+    database: config.database
+}
+//var connection = new Connection(dbconfig);
+
+sql.connect(dbconfig).then(pool => {
+    // Query
+
+    return pool.request()
+        //.input('input_parameter', sql.Int, value)
+        .query('select * from xx_moodle_core_course_get_categories ')
+}).then(result => {
+    console.dir(result)
+
+
+}).catch(err => {
+    // ... error checks
+})
+
+sql.on('error', err => {
+    // ... error handler
+})
+
+/*
+async () => {
+    try {
+        await sql.connect('mssql://mfgadmin:P@ssw0rd@10.9.5.156/ML_MinorGroup_DEV')
+        const result = await sql.query`select * from xx_moodle_core_course_get_categories`
+        console.dir(result)
+    } catch (err) {
+        // ... error checks
     }
 }
-var connection = new Connection(dbconfig);
-
-// Attempt to connect and execute queries if connection goes through
-connection.on('connect', function(err) {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log('Connected');
-    }
-});
+*/
 
 /*
 axios.get('/webservice/rest/server.php?wstoken='+config.token+'&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
