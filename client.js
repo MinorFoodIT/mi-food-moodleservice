@@ -174,10 +174,14 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_EnrolledCourses')
 
             var faild_course = []
+            var loop = 1
             var course_data = response.data;
             for (const course of course_data) {
                 insertTable_Courses(course,pool)
+
                 //do enrolled user
+                console.log('loop '+loop)
+                loop = loop + 1
                 axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                     .then(function (response){
                             var user_data = response.data;
