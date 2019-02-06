@@ -220,7 +220,7 @@ sql.connect(config).then(pool => {
                 logger.info('loop '+loop)
 
                 loop = loop + 1
-                axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
+                return axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                     .then(function (response){
                             var user_data = response.data;
                             if(response.data.exception){
@@ -239,7 +239,7 @@ sql.connect(config).then(pool => {
                         faild_course.push(course.id)
                         logger.info('failed course '+faild_course)
 
-                        redoRequest(faild_course)
+                        //redoRequest(faild_course)
                         console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
