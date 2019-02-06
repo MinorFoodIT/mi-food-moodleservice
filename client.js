@@ -204,11 +204,12 @@ sql.connect(config).then(pool => {
                         * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
                         * */
                         faild_course.push(course.id)
+                        logger.info('failed course '+faild_course)
                         console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
 
-            logger.info('failed course '+faild_course)
+
 
             console.log('failed course '+faild_course)
             console.log('Insert course catogeries '+response.data.length+' row(s)')
