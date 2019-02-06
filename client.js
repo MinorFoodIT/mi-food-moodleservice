@@ -75,7 +75,7 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
 
                 console.log(course.id);
-                insertTable(course,pool)
+                insertTable_CourseCategories(course,pool)
                 /*
                 pool.request()
                     .input('id', sql.Int, course.id)
