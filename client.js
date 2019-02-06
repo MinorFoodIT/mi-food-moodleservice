@@ -117,10 +117,10 @@ function insertTable_Users(user ,pool){
         .input('id',sql.Int,user.id)
         .query('select 1 from xx_Moodle_Users where id=@id')
         .then(result =>{
-            console.log(result.rowsAffected)
+            //console.log(result.rowsAffected)
             if(result.rowsAffected){
                 if(result.rowsAffected[0] == 0){
-                    console.log('Insert user '+user.id)
+                    //console.log('Insert user '+user.id)
                     return pool.request()
                         .input('id', sql.Int, user.id)
                         .input('username', sql.NVarChar(255), user.username)
@@ -142,7 +142,7 @@ function insertTable_Users(user ,pool){
                             //console.dir(result)
                         })
                 }else{
-                    console.log('Exist user '+user.id)
+                    //console.log('Exist user '+user.id)
                 }
             }
 
