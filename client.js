@@ -150,6 +150,39 @@ function insertTable_Users(user ,pool){
         });
 }
 
+
+function redoRequest(faild_course){
+
+    for(const courseid of faild_course){
+        var faild_course_inside = []
+        axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
+            .then(function (response){
+                    var user_data = response.data;
+                    if(response.data.exception){
+                        console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
+                    }else{
+                        for (const user of user_data) {
+                            insertTable_Users(user,pool)
+                            insertTable_EnrolledCourse(course,user,pool)
+                        }
+                    }
+                }
+            ).catch(function (error) {
+            /*
+            * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
+            * */
+            faild_course_inside.push(course.id)
+            redoRequest(faild_course_inside)
+            console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
+        })
+
+    }
+
+
+}
+
+
+
 logger.info('start')
 
 sql.connect(config).then(pool => {
@@ -205,6 +238,8 @@ sql.connect(config).then(pool => {
                         * */
                         faild_course.push(course.id)
                         logger.info('failed course '+faild_course)
+
+                        redoRequest(faild_course)
                         console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
                     })
             }
