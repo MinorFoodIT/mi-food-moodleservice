@@ -171,7 +171,7 @@ function redoRequest(faild_course){
             /*
             * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
             * */
-            faild_course_inside.push(course.id)
+            faild_course_inside.push(courseid)
             redoRequest(faild_course_inside)
             console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
         })
