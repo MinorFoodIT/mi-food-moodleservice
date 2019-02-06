@@ -150,6 +150,8 @@ function insertTable_Users(user ,pool){
         });
 }
 
+logger.info('start')
+
 sql.connect(config).then(pool => {
 
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
@@ -181,7 +183,7 @@ sql.connect(config).then(pool => {
                 insertTable_Courses(course,pool)
 
                 //do enrolled user
-                console.log('loop '+loop)
+                console.info('loop '+loop)
                 logger.log('loop '+loop)
 
                 loop = loop + 1
@@ -206,7 +208,7 @@ sql.connect(config).then(pool => {
                     })
             }
 
-            logger.log('failed course '+faild_course)
+            logger.info('failed course '+faild_course)
 
             console.log('failed course '+faild_course)
             console.log('Insert course catogeries '+response.data.length+' row(s)')
