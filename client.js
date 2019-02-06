@@ -117,7 +117,7 @@ function insertTable_Users(user ,pool){
         .input('id',sql.Int,user.id)
         .query('select 1 from xx_Moodle_Users where id=@id')
         .then(result =>{
-
+            console.log(result.rowAffected)
             if(result.rowAffected){
                 if(result.rowAffected[0] == 0){
                     console.log('Insert user '+user.id)
