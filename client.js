@@ -151,10 +151,8 @@ function insertTable_Users(user ,pool){
 }
 
 
-function redoRequest(faild_course){
+function redoRequest(courseid){
 
-    for(const courseid of faild_course){
-        var faild_course_inside = []
         axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
             .then(function (response){
                     var user_data = response.data;
@@ -166,17 +164,24 @@ function redoRequest(faild_course){
                             insertTable_EnrolledCourse(course,user,pool)
                         }
                     }
-                }
-            ).catch(function (error) {
+            }).catch(function (error) {
             /*
             * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
             * */
-            faild_course_inside.push(courseid)
-            redoRequest(faild_course_inside)
-            console.log('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
-        })
-
-    }
+                console.log('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
+                return axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
+            })
+            .then(function (response){
+                var user_data = response.data;
+                if(response.data.exception){
+                    console.log('API redo: Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
+                }else{
+                    for (const user of user_data) {
+                        insertTable_Users(user,pool)
+                        insertTable_EnrolledCourse(course,user,pool)
+                    }
+                }
+            })
 
 
 }
@@ -220,33 +225,12 @@ sql.connect(config).then(pool => {
                 logger.info('loop '+loop)
 
                 loop = loop + 1
-                return axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
-                    .then(function (response){
-                            var user_data = response.data;
-                            if(response.data.exception){
-                                console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
-                            }else{
-                                for (const user of user_data) {
-                                    insertTable_Users(user,pool)
-                                    insertTable_EnrolledCourse(course,user,pool)
-                                }
-                            }
-                        }
-                    ).catch(function (error) {
-                        /*
-                        * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
-                        * */
-                        faild_course.push(course.id)
-                        logger.info('failed course '+faild_course)
 
-                        //redoRequest(faild_course)
-                        console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
-                    })
+                redoRequest(course.id)
+
             }
 
-
-
-            console.log('failed course '+faild_course)
+            //console.log('failed course '+faild_course)
             console.log('Insert course catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
