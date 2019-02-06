@@ -42,6 +42,16 @@ pools.then( pool => {
 );
 */
 
+function insertTable(course ,pool){
+
+    return pool.request()
+        .input('id', sql.Int, course.id)
+        .query('Insert into xx_moodle_core_course_get_categories (id) values (@id)')
+        .then(result => {
+            console.dir(result)
+        })
+}
+
 sql.connect(config).then(pool => {
 
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
@@ -50,13 +60,15 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
 
                 console.log(course.id);
+                insertTable(course,pool)
+                /*
                 pool.request()
                     .input('id', sql.Int, course.id)
                     .query('Insert into xx_moodle_core_course_get_categories (id) values (@id)')
                     .then(result => {
                         console.dir(result)
                     })
-
+                */
 
             }
 
