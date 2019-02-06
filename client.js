@@ -26,8 +26,8 @@ sql.connect(dbconfig).then(pool => {
     // Query
 
     return pool.request()
-        //.input('input_parameter', sql.Int, value)
-        .query('select * from xx_moodle_core_course_get_categories ')
+        .input('input_parameter', sql.VarChar(50), 'CFTH1002')
+        .query('select * from Sites where SiteID = @input_parameter')
 }).then(result => {
     console.dir(result)
 
