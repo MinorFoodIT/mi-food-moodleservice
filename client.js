@@ -173,7 +173,7 @@ function redoRequest(faild_course){
             * */
             faild_course_inside.push(courseid)
             redoRequest(faild_course_inside)
-            console.log('API : Moodle : enrolled_courses : '+course.id+' : error '+error);
+            console.log('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
         })
 
     }
