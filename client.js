@@ -248,7 +248,7 @@ sql.connect(config).then(pool => {
                 insertTable_state(course.id,'call pending')
 
                 insertTable_Courses(course,pools)
-
+                /*
                 setTimeout(function (pool) {
                     logger.info('Do http get request with courseid '+course.id)
                     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
@@ -276,6 +276,7 @@ sql.connect(config).then(pool => {
                         logger.info('finish core_course_get_courses process')
                     }
                 }(pools), 5000);
+                */
             })(course_data.length,course_data,pool);
 
 
