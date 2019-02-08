@@ -119,9 +119,9 @@ function insertTable_EnrolledCourse(course ,user ,pool){
 
 function insertTable_state(id,status,pool){
     return pool.request()
-        .input('tpye',sql.NVarchar(50),'course-enroll')
+        .input('tpye',sql.NVarChar(50),'course-enroll')
         .input('id',sql.Int,id)
-        .input('status',sql.NVarchar(50),status)
+        .input('status',sql.NVarChar(50),status)
 
         .query('Insert into xx_Moodle_State (type,id,status) values(@type,@id,@status)')
         .then(result =>{
@@ -131,10 +131,10 @@ function insertTable_state(id,status,pool){
 
 function updateTable_state(id,status,note,pool){
     return pool.request()
-        .input('tpye',sql.NVarchar(50),'course-enroll')
+        .input('tpye',sql.NVarChar(50),'course-enroll')
         .input('id',sql.Int,id)
-        .input('status',sql.NVarchar(50),status)
-        .input('note',sql.NVarchar(100),note)
+        .input('status',sql.NVarChar(50),status)
+        .input('note',sql.NVarChar(100),note)
 
         .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and node=@node')
         .then(result =>{
