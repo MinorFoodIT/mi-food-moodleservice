@@ -4,6 +4,10 @@ var logger = require('./config/winston')
 
 const sql = require('mssql')
 
+var axiosRetry = require('axios-retry');
+
+axiosRetry(axios, { retries: 3 });
+
 axios.defaults.baseURL = 'https://learning.minorfood.com';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
@@ -150,7 +154,7 @@ function insertTable_Users(user ,pool){
         });
 }
 
-
+/*
 function redoRequest(courseid,pool){
 
         axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
@@ -165,9 +169,7 @@ function redoRequest(courseid,pool){
                         }
                     }
             }).catch(function (error) {
-            /*
-            * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
-            * */
+
                 console.log('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
                 return axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
             })
@@ -182,10 +184,8 @@ function redoRequest(courseid,pool){
                     }
                 }
             })
-
-
 }
-
+*/
 
 
 logger.info('start')
@@ -214,24 +214,38 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_Users')
             truncate_table(pool,'xx_Moodle_EnrolledCourses')
 
-            var faild_course = []
-            var loop = 1
             var course_data = response.data;
-            for (const course of course_data) {
+            (function theLoop (i,items) {
+                var course = items[i-1]
                 insertTable_Courses(course,pool)
-
-                //do enrolled user
-                console.info('loop '+loop)
                 logger.info('loop '+loop)
 
-                loop = loop + 1
+                setTimeout(function () {
+                    logger.info('do request with '+course.id)
+                    axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
+                        .then(function (response){
+                            var user_data = response.data;
+                            if(response.data.exception){
+                                logger.info('API : Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
+                            }else{
+                                for (const user of user_data) {
+                                    insertTable_Users(user,pool)
+                                    insertTable_EnrolledCourse(course,user,pool)
+                                }
+                            }
+                        }).catch(function (error) {
+                            /*
+                            * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
+                            * */
+                            logger.info('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
+                        })
+                    if (--i) {          // If i > 0, keep going
+                        theLoop(i,items);       // Call the loop again, and pass it the current value of i
+                    }
+                }, 3000);
+            })(course_data.length,course_data);
 
-                redoRequest(course.id,pool)
-
-            }
-
-            //console.log('failed course '+faild_course)
-            console.log('Insert course catogeries '+response.data.length+' row(s)')
+            logger.info('Insert course catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
             console.log('API : Moodle : core_courses : error '+error);
@@ -244,3 +258,38 @@ sql.connect(config).then(pool => {
     console.info('SQL Connect error '+err)
 })
 
+/*
+axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_courses&moodlewsrestformat=json')
+    .then(function (response) {
+        var course_data = response.data;
+        logger.info('All courses is '+course_data.length +' ,time '+new Date())
+        var count = 0;
+        //for (const course of course_data) {
+            (function theLoop (i,items) {
+                var course = items[i-1]
+                setTimeout(function () {
+                    logger.info('do request with '+course.id)
+                    axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
+                        .then( res =>{
+                                count = count + 1
+                                logger.info(course.id+' success ,count ='+count +' ,time '+new Date())
+                            }
+                        )
+                        .catch( err =>{
+                                logger.info('request error '+course.id+' ,'+err)
+                            }
+                        )
+                    if (--i) {          // If i > 0, keep going
+                        theLoop(i,items);       // Call the loop again, and pass it the current value of i
+                    }
+                }, 15000);
+            })(course_data.length,course_data);
+
+        //}
+
+    })
+    .catch( err =>{
+            logger.info('main request error '+err)
+        }
+    )
+*/
