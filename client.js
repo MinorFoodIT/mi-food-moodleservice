@@ -244,8 +244,6 @@ sql.connect(config).then(pool => {
             var course_data = response.data;
             //var pools = pool
             (function theLoop (i,items) {
-                logger.info(pool)
-
                 var course = items[i-1]
                 insertTable_state(course.id,'call pending',pool)
 
