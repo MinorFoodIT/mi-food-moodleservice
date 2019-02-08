@@ -53,6 +53,7 @@ function truncate_table(pool , tablename) {
         .then(result =>{
             logger.log('Do truncate '+tablename+' complete')
         })
+        .catch()
 }
 
 function insertTable_CourseCategories(course ,pool){
@@ -77,7 +78,7 @@ function insertTable_CourseCategories(course ,pool){
             'values (@id,@name,@idnumber,@description,@descriptionformat,@parent,@sortorder,@coursecount,@visible,@visibleold,@timemodified,@depth,@path)')
         .then(result => {
             //console.dir(result)
-        })
+        }).catch()
 }
 
 function insertTable_Courses(course ,pool){
@@ -100,7 +101,7 @@ function insertTable_Courses(course ,pool){
             'values (@id,@shortname,@categoryid,@categorysortorder,@fullname,@displayname,@idnumber,@startdate,@enddate,@visible,@enablecompletion,@completionnotify)')
         .then(result => {
             //console.dir(result)
-        })
+        }).catch()
 }
 
 
@@ -113,7 +114,7 @@ function insertTable_EnrolledCourse(course ,user ,pool){
             'values (@courseid,@userid)')
         .then(result => {
             //console.dir(result)
-        })
+        }).catch()
 }
 
 function insertTable_state(id,status){
@@ -125,7 +126,7 @@ function insertTable_state(id,status){
         .query('Insert into xx_Moodle_State (type,id,status) values(@type,@id,@status)')
         .then(result =>{
             //
-        })
+        }).catch()
 }
 
 function updateTable_state(id,status,note){
@@ -138,7 +139,7 @@ function updateTable_state(id,status,note){
         .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and node=@node')
         .then(result =>{
             //
-        })
+        }).catch()
 }
 
 function insertTable_Users(user ,pool){
@@ -176,7 +177,7 @@ function insertTable_Users(user ,pool){
                 }
             }
 
-        });
+        }).catch();
 }
 
 /*
@@ -242,7 +243,7 @@ sql.connect(config).then(pool => {
 
             var course_data = response.data;
 
-            (function theLoop (i,items) {
+            (function theLoop (i,items,pool) {
                 var course = items[i-1]
                 insertTable_state(course.id,'call pending')
 
@@ -276,7 +277,7 @@ sql.connect(config).then(pool => {
                         logger.info('finish core_course_get_courses process')
                     }
                 }, 5000);
-            })(course_data.length,course_data);
+            })(course_data.length,course_data,pool);
 
             logger.info('Insert courses '+response.data.length+' row(s)')
         })
