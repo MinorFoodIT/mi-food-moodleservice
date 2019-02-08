@@ -242,7 +242,7 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_State')
 
             var course_data = response.data;
-
+            /*
             (function theLoop (i,items,pool) {
                 var course = items[i-1]
                 insertTable_state(course.id,'call pending')
@@ -264,9 +264,8 @@ sql.connect(config).then(pool => {
                                 }
                             }
                         }).catch(function (error) {
-                            /*
-                            * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
-                            * */
+                            // {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
+
                             logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
                         })
                     if (--i) {          // If i > 0, keep going
@@ -278,6 +277,7 @@ sql.connect(config).then(pool => {
                     }
                 }, 5000);
             })(course_data.length,course_data,pool);
+            */
 
             logger.info('Insert courses '+response.data.length+' row(s)')
         })
