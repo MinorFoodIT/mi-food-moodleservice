@@ -119,7 +119,7 @@ function insertTable_EnrolledCourse(course ,user ,pool){
 
 function insertTable_state(id,status,pool){
     return pool.request()
-        .input('tpye',sql.NVarChar(50),'course-enroll')
+        .input('type',sql.NVarChar(50),'course-enroll')
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
 
@@ -131,7 +131,7 @@ function insertTable_state(id,status,pool){
 
 function updateTable_state(id,status,note,pool){
     return pool.request()
-        .input('tpye',sql.NVarChar(50),'course-enroll')
+        .input('type',sql.NVarChar(50),'course-enroll')
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
         .input('note',sql.NVarChar(100),note)
