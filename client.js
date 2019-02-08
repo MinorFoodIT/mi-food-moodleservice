@@ -117,7 +117,7 @@ function insertTable_EnrolledCourse(course ,user ,pool){
         }).catch(err=>{})
 }
 
-function insertTable_state(id,status){
+function insertTable_state(id,status,pool){
     return pool.request()
         .input('tpye',sql.NVarchar(50),'course-enroll')
         .input('id',sql.Int,id)
@@ -129,7 +129,7 @@ function insertTable_state(id,status){
         }).catch(err=>{})
 }
 
-function updateTable_state(id,status,note){
+function updateTable_state(id,status,note,pool){
     return pool.request()
         .input('tpye',sql.NVarchar(50),'course-enroll')
         .input('id',sql.Int,id)
@@ -243,13 +243,13 @@ sql.connect(config).then(pool => {
 
             var course_data = response.data;
 
-            (function theLoop (i,items,pools) {
+            (function theLoop (i,items,pool) {
                 var course = items[i-1]
-                insertTable_state(course.id,'call pending')
+                insertTable_state(course.id,'call pending',pool)
 
-                insertTable_Courses(course,pools)
-                /*
-                setTimeout(function (pool) {
+                insertTable_Courses(course,pool)
+
+                setTimeout(function () {
                     logger.info('Do http get request with courseid '+course.id)
                     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                         .then(function (response){
@@ -257,7 +257,7 @@ sql.connect(config).then(pool => {
                             if(response.data.exception){
                                 logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                             }else{
-                                updateTable_state(course.id,'call success' ,'usercount='+user_data.length)
+                                updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
                                 for (const user of user_data) {
                                     insertTable_Users(user,pool)
                                     insertTable_EnrolledCourse(course,user,pool)
@@ -275,8 +275,8 @@ sql.connect(config).then(pool => {
                         //finish call api
                         logger.info('finish core_course_get_courses process')
                     }
-                }(pools), 5000);
-                */
+                }, 5000);
+
             })(course_data.length,course_data,pool);
 
 
