@@ -6,7 +6,7 @@ const sql = require('mssql')
 
 var axiosRetry = require('axios-retry');
 
-axiosRetry(axios, { retries: 3 });
+axiosRetry(axios, { retries: 5 });
 
 axios.defaults.baseURL = 'https://learning.minorfood.com';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -51,7 +51,7 @@ function truncate_table(pool , tablename) {
     return pool.request()
         .query('truncate table '+tablename+'')
         .then(result =>{
-            console.log('Do truncate '+tablename+' complete')
+            logger.log('Do truncate '+tablename+' complete')
         })
 }
 
@@ -113,6 +113,31 @@ function insertTable_EnrolledCourse(course ,user ,pool){
             'values (@courseid,@userid)')
         .then(result => {
             //console.dir(result)
+        })
+}
+
+function insertTable_state(id,status){
+    return pool.request()
+        .input('tpye',sql.NVarchar(50),'course-enroll')
+        .input('id',sql.Int,id)
+        .input('status',sql.NVarchar(50),status)
+
+        .query('Insert into xx_Moodle_State (type,id,status) values(@type,@id,@status)')
+        .then(result =>{
+            //
+        })
+}
+
+function updateTable_state(id,status,note){
+    return pool.request()
+        .input('tpye',sql.NVarchar(50),'course-enroll')
+        .input('id',sql.Int,id)
+        .input('status',sql.NVarchar(50),status)
+        .input('note',sql.NVarchar(100),note)
+
+        .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and node=@node')
+        .then(result =>{
+            //
         })
 }
 
@@ -188,7 +213,7 @@ function redoRequest(courseid,pool){
 */
 
 
-logger.info('start')
+logger.info('start service '+new Date())
 
 sql.connect(config).then(pool => {
 
@@ -199,10 +224,10 @@ sql.connect(config).then(pool => {
             for (const course of course_data) {
                 insertTable_CourseCategories(course,pool)
             }
-            console.log('Insert course catogeries '+response.data.length+' row(s)')
+            logger.info('Insert catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
-            console.log('API : Moodle : core_course_get_categories : error '+error);
+            logger.info('HTTP : Moodle API : core_course_get_categories : error '+error);
         })
         .then(function () {
             // always executed
@@ -213,21 +238,25 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_Courses')
             truncate_table(pool,'xx_Moodle_Users')
             truncate_table(pool,'xx_Moodle_EnrolledCourses')
+            truncate_table(pool,'xx_Moodle_State')
 
             var course_data = response.data;
+
             (function theLoop (i,items) {
                 var course = items[i-1]
+                insertTable_state(course.id,'call pending')
+
                 insertTable_Courses(course,pool)
-                logger.info('loop '+loop)
 
                 setTimeout(function () {
-                    logger.info('do request with '+course.id)
+                    logger.info('Do http get request with courseid '+course.id)
                     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                         .then(function (response){
                             var user_data = response.data;
                             if(response.data.exception){
-                                logger.info('API : Moodle : enrolled_courses : '+course.id+' : error '+response.data.message);
+                                logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                             }else{
+                                updateTable_state(course.id,'call success' ,'usercount='+user_data.length)
                                 for (const user of user_data) {
                                     insertTable_Users(user,pool)
                                     insertTable_EnrolledCourse(course,user,pool)
@@ -237,18 +266,22 @@ sql.connect(config).then(pool => {
                             /*
                             * {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
                             * */
-                            logger.info('API : Moodle : enrolled_courses : '+courseid+' : error '+error);
+                            logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
                         })
                     if (--i) {          // If i > 0, keep going
                         theLoop(i,items);       // Call the loop again, and pass it the current value of i
                     }
-                }, 3000);
+                    if(i == 0){
+                        //finish call api
+                        logger.info('finish core_course_get_courses process')
+                    }
+                }, 5000);
             })(course_data.length,course_data);
 
-            logger.info('Insert course catogeries '+response.data.length+' row(s)')
+            logger.info('Insert courses '+response.data.length+' row(s)')
         })
         .catch(function (error) {
-            console.log('API : Moodle : core_courses : error '+error);
+            logger.info('HTTP : Moodle API : core_courses_get_courses : error '+error);
         })
         .then(function () {
             // always executed
