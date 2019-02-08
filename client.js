@@ -242,8 +242,10 @@ sql.connect(config).then(pool => {
             truncate_table(pool,'xx_Moodle_State')
 
             var course_data = response.data;
+            //var pools = pool
+            (function theLoop (i,items) {
+                logger.info(pool)
 
-            (function theLoop (i,items,pool) {
                 var course = items[i-1]
                 insertTable_state(course.id,'call pending',pool)
 
@@ -277,7 +279,7 @@ sql.connect(config).then(pool => {
                     }
                 }, 5000);
 
-            })(course_data.length,course_data,pool);
+            })(course_data.length,course_data);
 
 
             logger.info('Insert courses '+response.data.length+' row(s)')
