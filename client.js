@@ -126,7 +126,7 @@ function insertTable_state(id,status,pool){
         .query('Insert into xx_Moodle_State (type,id,status) values(@type,@id,@status)')
         .then(result =>{
             //
-        }).catch(err=>{})
+        }).catch(err=>{ logger.info('DB : NVarChar : error '+err)})
 }
 
 function updateTable_state(id,status,note,pool){
@@ -139,7 +139,7 @@ function updateTable_state(id,status,note,pool){
         .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and node=@node')
         .then(result =>{
             //
-        }).catch(err=>{})
+        }).catch(err=>{ logger.info('DB : NVarChar : error '+err)})
 }
 
 function insertTable_Users(user ,pool){
@@ -257,6 +257,7 @@ sql.connect(config).then(pool => {
                             if(response.data.exception){
                                 logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                             }else{
+                                logger.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success')
                                 updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
                                 for (const user of user_data) {
                                     insertTable_Users(user,pool)
