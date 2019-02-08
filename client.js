@@ -136,7 +136,7 @@ function updateTable_state(id,status,note,pool){
         .input('status',sql.NVarChar(50),status)
         .input('note',sql.NVarChar(100),note)
 
-        .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and node=@node')
+        .query('Update xx_Moodle_State set status=@status where id=@id and type=@type and note=@note')
         .then(result =>{
             //
         }).catch(err=>{ logger.info('DB : NVarChar : error '+err)})
