@@ -180,6 +180,7 @@ function insertTable_Users(user ,pool){
         }).catch(err=>{})
 }
 
+
 /*
 function redoRequest(courseid,pool){
 
@@ -221,6 +222,7 @@ sql.connect(config).then(pool => {
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
         .then(function (response) {
             truncate_table(pool,'xx_Moodle_CourseCategories')
+
             var course_data = response.data;
             for (const course of course_data) {
                 insertTable_CourseCategories(course,pool)
@@ -237,12 +239,11 @@ sql.connect(config).then(pool => {
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_courses&moodlewsrestformat=json')
         .then(function (response) {
             truncate_table(pool,'xx_Moodle_Courses')
-            truncate_table(pool,'xx_Moodle_Users')
-            truncate_table(pool,'xx_Moodle_EnrolledCourses')
-            truncate_table(pool,'xx_Moodle_State')
+            //truncate_table(pool,'xx_Moodle_Users')
+            //truncate_table(pool,'xx_Moodle_EnrolledCourses')
+            //truncate_table(pool,'xx_Moodle_State')
 
             var course_data = response.data;
-            //var pools = pool
             (function theLoop (i,items) {
                 var course = items[i-1]
                 insertTable_state(course.id,'call pending',pool)
@@ -276,11 +277,9 @@ sql.connect(config).then(pool => {
                         //finish call api
                         logger.info('finish core_course_get_courses process')
                     }
-                }, 5000);
+                }, 10000);
 
             })(course_data.length,course_data);
-
-
             logger.info('Insert courses '+response.data.length+' row(s)')
         })
         .catch(function (error) {
@@ -328,4 +327,29 @@ axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=c
             logger.info('main request error '+err)
         }
     )
+
+function selectCoursePending(courseid,pool){
+
+    return pool.request()
+        .input('type',sql.NVarChar(50),'course-enroll')
+        .input('id',sql.Int,id,courseid)
+        .input('status',sql.NVarChar(50),'call pending')
+
+        .query('select 1 from xx_Moodle_State  where id = @id and type=@type and status=@status) ')
+        .then(result =>{
+            if(result.rowsAffected) {
+                if (result.rowsAffected[0] == 1) {
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+
+        }).catch(err=>{
+            logger.info('DB : NVarChar : error '+err)
+            return false;
+        })
+}
 */
