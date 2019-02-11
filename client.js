@@ -118,21 +118,22 @@ function insertTable_EnrolledCourse(course ,user ,pool){
         }).catch(err=>{})
 }
 
-function insertTable_state(id,status,pool){
+function insertTable_state(type,id,status,pool){
     return pool.request()
-        .input('type',sql.NVarChar(50),'course-enroll')
+        .input('type',sql.NVarChar(50),type)
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
+        .input('startdate',sql.DateTime2(5),new Date())
 
-        .query('Insert into xx_Moodle_State (type,id,status) values(@type,@id,@status)')
+        .query('Insert into xx_Moodle_State (type,id,status,startdate) values(@type,@id,@status,@startdate)')
         .then(result =>{
             //
         }).catch(err=>{ logger.log(info,'DB : NVarChar : error '+err)})
 }
 
-function updateTable_state(id,status,note,pool){
+function updateTable_state(type,id,status,note,pool){
     return pool.request()
-        .input('type',sql.NVarChar(50),'course-enroll')
+        .input('type',sql.NVarChar(50),type)
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
         .input('note',sql.NVarChar(100),note)
@@ -247,7 +248,7 @@ sql.connect(config).then(pool => {
             var course_data = response.data;
             (function theLoop (i,items) {
                 var course = items[i-1]
-                insertTable_state(course.id,'call pending',pool)
+                insertTable_state('course-enroll',course.id,'call pending',pool)
 
                 insertTable_Courses(course,pool)
 
@@ -260,7 +261,8 @@ sql.connect(config).then(pool => {
                                 logger.log(info,'HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                             }else{
                                 logger.log(info,'HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success')
-                                updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
+
+                                updateTable_state('course-enroll',course.id,'call success' ,'usercount='+user_data.length ,pool)
                                 for (const user of user_data) {
                                     insertTable_Users(user,pool)
                                     insertTable_EnrolledCourse(course,user,pool)
@@ -279,7 +281,7 @@ sql.connect(config).then(pool => {
                         pool.close();
                         logger.log(info,'finish core_course_get_courses process')
                     }
-                }, 10000);
+                }, 5000);
 
             })(course_data.length,course_data);
             logger.log(info,'Insert courses '+response.data.length+' row(s)')

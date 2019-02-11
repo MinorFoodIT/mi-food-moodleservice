@@ -122,9 +122,9 @@ function selectCoursePending(pool){
                         if(i == 0){
                             //finish call api
                             console.info('finish core_course_get_courses process');
-                            pool.close()
+                            //pool.close()
                         }
-                    }, 60000);
+                    }, 30000);
 
                 })(course_data.length,course_data);
 
@@ -143,8 +143,16 @@ function selectCoursePending(pool){
 
 sql.connect(config).then(pool => {
 
-    selectCoursePending(pool);
+    do {
+        setTimeout(
+            selectCoursePending(pool)
+            ,600000);
+
+    }while(selectCoursePending(pool).length > 0 );
+    pool.close();
+    process.emit(0);
 
 }).catch(err =>{
     console.info('SQL Connect error '+err)
+    process.exit(1);
 })
