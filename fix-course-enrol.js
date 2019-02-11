@@ -70,17 +70,18 @@ function insertTable_Users(user ,pool){
         }).catch(err=>{})
 }
 
-function updateTable_state(id,status,note,pool){
+function updateTable_state(type,id,status,note,pool){
     return pool.request()
-        .input('type',sql.NVarChar(50),'course-enroll')
+        .input('type',sql.NVarChar(50),type)
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
         .input('note',sql.NVarChar(100),note)
+        .input('updatedate',sql.DateTime,new Date())
 
-        .query('Update xx_Moodle_State set status=@status ,note=@note where id=@id and type=@type')
+        .query('Update xx_Moodle_State set status=@status ,note=@note ,updatedate=@updatedate where id=@id and type=@type')
         .then(result =>{
             //
-        }).catch(err=>{ console.info('DB : NVarChar : error '+err)})
+        }).catch(err=>{ console.log('DB : updateTable_state : NVarChar : error '+err)})
 }
 
 function selectCoursePending(pool){
@@ -106,7 +107,7 @@ function selectCoursePending(pool){
                                     console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                                 }else{
                                     console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success');
-                                    updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
+                                    updateTable_state('course-enroll',course.id,'call success' ,'usercount='+user_data.length ,pool)
                                     for (const user of user_data) {
                                         insertTable_Users(user,pool)
                                         insertTable_EnrolledCourse(course,user,pool)
@@ -133,7 +134,7 @@ function selectCoursePending(pool){
             }
 
         }).catch(err=>{
-            console.info('DB : NVarChar : error '+err)
+            console.info('DB : selectCoursePending : NVarChar : error '+err)
             return [];
         })
 }
