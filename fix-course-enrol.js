@@ -93,8 +93,40 @@ function selectCoursePending(pool){
             //result.recordset
             //result.rowsAffected  //row count
             if(result.rowsAffected.length > 0) {
-                console.info(result.rowsAffected)
-                return result.recordset;
+                //console.info(result.rowsAffected)
+                var course_data = result.recordset;
+                (function theLoop (i,items) {
+                    var courseid = items[i-1]
+                    setTimeout(function () {
+                        console.info('Do http get request with courseid '+courseid);
+                        axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
+                            .then(function (response){
+                                var user_data = response.data;
+                                if(response.data.exception){
+                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : error '+response.data.message);
+                                }else{
+                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : success');
+                                    updateTable_state(courseid,'call success' ,'usercount='+user_data.length ,pool)
+                                    for (const user of user_data) {
+                                        insertTable_Users(user,pool)
+                                        insertTable_EnrolledCourse(course,user,pool)
+                                    }
+                                }
+                            }).catch(function (error) {
+
+                            console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
+                        })
+                        if (--i) {          // If i > 0, keep going
+                            theLoop(i,items);       // Call the loop again, and pass it the current value of i
+                        }
+                        if(i == 0){
+                            //finish call api
+                            console.info('finish core_course_get_courses process');
+                        }
+                    }, 60000);
+
+                })(course_data.length,course_data);
+
 
             }else{
                 console.info('[]')
@@ -110,40 +142,7 @@ function selectCoursePending(pool){
 
 sql.connect(config).then(pool => {
 
-    var course_data = selectCoursePending(pool);
-    console.info(course_data);
-
-    (function theLoop (i,items) {
-        var courseid = items[i-1]
-        setTimeout(function () {
-            console.info('Do http get request with courseid '+courseid);
-            axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
-                .then(function (response){
-                    var user_data = response.data;
-                    if(response.data.exception){
-                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : error '+response.data.message);
-                    }else{
-                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : success');
-                        updateTable_state(courseid,'call success' ,'usercount='+user_data.length ,pool)
-                        for (const user of user_data) {
-                            insertTable_Users(user,pool)
-                            insertTable_EnrolledCourse(course,user,pool)
-                        }
-                    }
-                }).catch(function (error) {
-
-                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
-                })
-            if (--i) {          // If i > 0, keep going
-                theLoop(i,items);       // Call the loop again, and pass it the current value of i
-            }
-            if(i == 0){
-                //finish call api
-                console.info('finish core_course_get_courses process');
-            }
-        }, 60000);
-
-    })(course_data.length,course_data);
+    selectCoursePending(pool);
 
 }).catch(err =>{
     console.info('SQL Connect error '+err)
