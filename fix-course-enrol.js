@@ -152,7 +152,7 @@ function doHttp(){
 }
 
 do {
-    console.log('start function to check course is pendding ,'+new Date());
+    console.log('start function to check course is pendding ,'+new Date().toLocaleString());
     setTimeout(function(){
         return doHttp();
     },600000);
