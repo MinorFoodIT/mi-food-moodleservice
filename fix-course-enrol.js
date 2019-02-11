@@ -86,7 +86,7 @@ function selectCoursePending(pool){
             }
 
         }).catch(err=>{
-            logger.info('DB : NVarChar : error '+err)
+            console.info('DB : NVarChar : error '+err)
             return [];
         })
 }
