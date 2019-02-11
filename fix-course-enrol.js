@@ -91,9 +91,11 @@ function selectCoursePending(pool){
         .query('select id from xx_Moodle_State where type=@type and status=@status ')
         .then(result =>{
             if(result.rowsAffected) {
+                console.info(result.rowsAffected)
                 return result.rowsAffected;
 
             }else{
+                console.info('[]')
                 return [];
             }
 
