@@ -108,20 +108,20 @@ function selectCoursePending(pool){
 
 sql.connect(config).then(pool => {
 
-    var course_data = selectCoursePending(pool)
-    console.info(course_data)
+    var course_data = selectCoursePending(pool);
+    console.info(course_data);
 
     (function theLoop (i,items) {
         var course = items[i-1]
         setTimeout(function () {
-            //console.info('Do http get request with courseid '+course.id)
+            console.info('Do http get request with courseid '+course.id);
             axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                 .then(function (response){
                     var user_data = response.data;
                     if(response.data.exception){
-                        //console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
+                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                     }else{
-                        //console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success')
+                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success');
                         updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
                         for (const user of user_data) {
                             insertTable_Users(user,pool)
@@ -130,14 +130,14 @@ sql.connect(config).then(pool => {
                     }
                 }).catch(function (error) {
 
-                    //console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
+                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
                 })
             if (--i) {          // If i > 0, keep going
                 theLoop(i,items);       // Call the loop again, and pass it the current value of i
             }
             if(i == 0){
                 //finish call api
-                //console.info('finish core_course_get_courses process')
+                console.info('finish core_course_get_courses process');
             }
         }, 60000);
 
