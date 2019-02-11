@@ -110,7 +110,7 @@ sql.connect(config).then(pool => {
 
     var course_data = selectCoursePending(pool)
     console.info(course_data)
-    /*
+
     (function theLoop (i,items) {
         var course = items[i-1]
         setTimeout(function () {
@@ -142,7 +142,7 @@ sql.connect(config).then(pool => {
         }, 60000);
 
     })(course_data.length,course_data);
-    */
+
 }).catch(err =>{
     console.info('SQL Connect error '+err)
 })
