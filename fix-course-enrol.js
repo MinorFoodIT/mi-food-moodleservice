@@ -70,6 +70,18 @@ function insertTable_Users(user ,pool){
         }).catch(err=>{})
 }
 
+function updateTable_state(id,status,note,pool){
+    return pool.request()
+        .input('type',sql.NVarChar(50),'course-enroll')
+        .input('id',sql.Int,id)
+        .input('status',sql.NVarChar(50),status)
+        .input('note',sql.NVarChar(100),note)
+
+        .query('Update xx_Moodle_State set status=@status ,note=@note where id=@id and type=@type')
+        .then(result =>{
+            //
+        }).catch(err=>{ logger.info('DB : NVarChar : error '+err)})
+}
 
 function selectCoursePending(pool){
     return pool.request()
@@ -93,6 +105,7 @@ function selectCoursePending(pool){
 
 
 sql.connect(config).then(pool => {
+
     var course_data = selectCoursePending(pool)
     (function theLoop (i,items) {
         var course = items[i-1]
