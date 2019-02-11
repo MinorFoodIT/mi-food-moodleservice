@@ -76,7 +76,7 @@ function selectCoursePending(pool){
         .input('type',sql.NVarChar(50),'course-enroll')
         .input('status',sql.NVarChar(50),'call pending')
 
-        .query('select id from xx_Moodle_State where type=@type and status=@status) ')
+        .query('select id from xx_Moodle_State where type=@type and status=@status ')
         .then(result =>{
             if(result.rowsAffected) {
                 return result.rowsAffected;
