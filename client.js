@@ -123,7 +123,7 @@ function insertTable_state(type,id,status,pool){
         .input('type',sql.NVarChar(50),type)
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
-        .input('startdate',sql.DateTime2(5),new Date())
+        .input('startdate',sql.DateTime,new Date())
 
         .query('Insert into xx_Moodle_State (type,id,status,startdate) values(@type,@id,@status,@startdate)')
         .then(result =>{
@@ -137,8 +137,9 @@ function updateTable_state(type,id,status,note,pool){
         .input('id',sql.Int,id)
         .input('status',sql.NVarChar(50),status)
         .input('note',sql.NVarChar(100),note)
+        .input('updatedate',sql.DateTime,new Date())
 
-        .query('Update xx_Moodle_State set status=@status ,note=@note where id=@id and type=@type')
+        .query('Update xx_Moodle_State set status=@status ,note=@note ,updatedate=@updatedate where id=@id and type=@type')
         .then(result =>{
             //
         }).catch(err=>{ logger.log(info,'DB : NVarChar : error '+err)})
