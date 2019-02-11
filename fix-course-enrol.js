@@ -122,6 +122,7 @@ function selectCoursePending(pool){
                         if(i == 0){
                             //finish call api
                             console.info('finish core_course_get_courses process');
+                            pool.close()
                         }
                     }, 60000);
 
