@@ -127,8 +127,6 @@ function selectCoursePending(pool){
                     }, 30000);
 
                 })(course_data.length,course_data);
-
-
             }else{
                 console.info('[]')
                 return [];
@@ -141,18 +139,23 @@ function selectCoursePending(pool){
 }
 
 
-sql.connect(config).then(pool => {
+function doHttp(){
+    sql.close();
+    sql.connect(config).then(pool => {
+        return selectCoursePending(pool);
+    }).catch(err =>{
+        console.info('SQL Connect error '+err)
+        pool.close()
+        process.exit(1);
+    })
+}
 
-    do {
-        setTimeout(
-            selectCoursePending(pool)
-            ,600000);
+do {
+    console.log('start function to check course is pendding ,'+new Date());
+    setTimeout(function(){
+        return doHttp();
+    },600000);
 
-    }while(selectCoursePending(pool).length > 0 );
-    pool.close();
-    process.emit(0);
-
-}).catch(err =>{
-    console.info('SQL Connect error '+err)
-    process.exit(1);
-})
+}while( doHttp() == [] );
+//pool.close();
+process.emit(0);
