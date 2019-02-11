@@ -114,17 +114,17 @@ sql.connect(config).then(pool => {
     console.info(course_data);
 
     (function theLoop (i,items) {
-        var course = items[i-1]
+        var courseid = items[i-1]
         setTimeout(function () {
-            console.info('Do http get request with courseid '+course.id);
-            axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
+            console.info('Do http get request with courseid '+courseid);
+            axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
                 .then(function (response){
                     var user_data = response.data;
                     if(response.data.exception){
-                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
+                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : error '+response.data.message);
                     }else{
-                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success');
-                        updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
+                        console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : success');
+                        updateTable_state(courseid,'call success' ,'usercount='+user_data.length ,pool)
                         for (const user of user_data) {
                             insertTable_Users(user,pool)
                             insertTable_EnrolledCourse(course,user,pool)
