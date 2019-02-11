@@ -52,9 +52,9 @@ function truncate_table(pool , tablename) {
     return pool.request()
         .query('truncate table '+tablename+'')
         .then(result =>{
-            logger.log(info,'Do truncate '+tablename+' complete')
+            logger.log(info,'Clearing or truncate '+tablename+' is complete.')
         })
-        .catch(err=>{})
+        .catch(err=>{ logger.log(info,'DB : truncate_table : NVarChar : error '+err) })
 }
 
 function insertTable_CourseCategories(course ,pool){
@@ -79,7 +79,7 @@ function insertTable_CourseCategories(course ,pool){
             'values (@id,@name,@idnumber,@description,@descriptionformat,@parent,@sortorder,@coursecount,@visible,@visibleold,@timemodified,@depth,@path)')
         .then(result => {
             //console.dir(result)
-        }).catch(err=>{})
+        }).catch(err=>{ logger.log(info,'DB : insertTable_CourseCategories : NVarChar : error '+err) })
 }
 
 function insertTable_Courses(course ,pool){
@@ -102,7 +102,7 @@ function insertTable_Courses(course ,pool){
             'values (@id,@shortname,@categoryid,@categorysortorder,@fullname,@displayname,@idnumber,@startdate,@enddate,@visible,@enablecompletion,@completionnotify)')
         .then(result => {
             //console.dir(result)
-        }).catch(err=>{})
+        }).catch(err=>{ logger.log(info,'DB : insertTable_Courses : NVarChar : error '+err) })
 }
 
 
@@ -115,7 +115,7 @@ function insertTable_EnrolledCourse(course ,user ,pool){
             'values (@courseid,@userid)')
         .then(result => {
             //console.dir(result)
-        }).catch(err=>{})
+        }).catch(err=>{ logger.log(info,'DB : insertTable_EnrolledCourse : NVarChar : error '+err) })
 }
 
 function insertTable_state(type,id,status,pool){
@@ -128,7 +128,7 @@ function insertTable_state(type,id,status,pool){
         .query('Insert into xx_Moodle_State (type,id,status,startdate) values(@type,@id,@status,@startdate)')
         .then(result =>{
             //
-        }).catch(err=>{ logger.log(info,'DB : NVarChar : error '+err)})
+        }).catch(err=>{ logger.log(info,'DB : insertTable_state : NVarChar : error '+err)})
 }
 
 function updateTable_state(type,id,status,note,pool){
@@ -142,7 +142,7 @@ function updateTable_state(type,id,status,note,pool){
         .query('Update xx_Moodle_State set status=@status ,note=@note ,updatedate=@updatedate where id=@id and type=@type')
         .then(result =>{
             //
-        }).catch(err=>{ logger.log(info,'DB : NVarChar : error '+err)})
+        }).catch(err=>{ logger.log(info,'DB : updateTable_state : NVarChar : error '+err)})
 }
 
 function insertTable_Users(user ,pool){
@@ -218,19 +218,20 @@ function redoRequest(courseid,pool){
 */
 
 
-logger.log(info,'start service '+new Date())
+logger.log(info,'Start client service ,'+new Date().toLocaleString())
 
 sql.connect(config).then(pool => {
 
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_categories&moodlewsrestformat=json&criteria[0][key]=parent&criteria[0][value]=0')
         .then(function (response) {
+
             truncate_table(pool,'xx_Moodle_CourseCategories')
 
             var course_data = response.data;
             for (const course of course_data) {
                 insertTable_CourseCategories(course,pool)
             }
-            logger.log(info,'Insert catogeries '+response.data.length+' row(s)')
+            logger.log(info,'Inserting catogeries '+response.data.length+' row(s)')
         })
         .catch(function (error) {
             logger.log(info,'HTTP : Moodle API : core_course_get_categories : error '+error);
@@ -242,9 +243,9 @@ sql.connect(config).then(pool => {
     axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_course_get_courses&moodlewsrestformat=json')
         .then(function (response) {
             truncate_table(pool,'xx_Moodle_Courses')
-            //truncate_table(pool,'xx_Moodle_Users')
-            //truncate_table(pool,'xx_Moodle_EnrolledCourses')
-            //truncate_table(pool,'xx_Moodle_State')
+            truncate_table(pool,'xx_Moodle_Users')
+            truncate_table(pool,'xx_Moodle_EnrolledCourses')
+            truncate_table(pool,'xx_Moodle_State')
 
             var course_data = response.data;
             (function theLoop (i,items) {
@@ -279,8 +280,8 @@ sql.connect(config).then(pool => {
                     }
                     if(i == 0){
                         //finish call api
-                        pool.close();
-                        logger.log(info,'finish core_course_get_courses process')
+                        //pool.close();
+                        logger.log(info,'Finish core_course_get_courses process')
                     }
                 }, 5000);
 
@@ -292,6 +293,12 @@ sql.connect(config).then(pool => {
         })
         .then(function () {
             // always executed
+            setTimeout(function(){
+                logger.log(info,'Delayed 10 minutes let calling web api to complete')
+            },600000);
+            pool.close()
+            logger.log(info,'Pool is closed and close program')
+            process.exit(0)
         });
 
 }).catch(err =>{
