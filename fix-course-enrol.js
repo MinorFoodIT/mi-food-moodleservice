@@ -96,17 +96,17 @@ function selectCoursePending(pool){
                 //console.info(result.rowsAffected)
                 var course_data = result.recordset;
                 (function theLoop (i,items) {
-                    var courseid = items[i-1]
+                    var course = items[i-1]
                     setTimeout(function () {
-                        console.info('Do http get request with courseid '+courseid);
-                        axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+courseid)
+                        console.info('Do http get request with courseid '+course.id);
+                        axios.get('/webservice/rest/server.php?wstoken=' + config.token + '&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid='+course.id)
                             .then(function (response){
                                 var user_data = response.data;
                                 if(response.data.exception){
-                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : error '+response.data.message);
+                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : error '+response.data.message);
                                 }else{
-                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+courseid+' : success');
-                                    updateTable_state(courseid,'call success' ,'usercount='+user_data.length ,pool)
+                                    console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : courseid='+course.id+' : success');
+                                    updateTable_state(course.id,'call success' ,'usercount='+user_data.length ,pool)
                                     for (const user of user_data) {
                                         insertTable_Users(user,pool)
                                         insertTable_EnrolledCourse(course,user,pool)
@@ -114,7 +114,7 @@ function selectCoursePending(pool){
                                 }
                             }).catch(function (error) {
 
-                            console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
+                            console.info('HTTP : Moodle API : core_enrol_get_enrolled_users : '+course.id+' : error '+error);
                         })
                         if (--i) {          // If i > 0, keep going
                             theLoop(i,items);       // Call the loop again, and pass it the current value of i
