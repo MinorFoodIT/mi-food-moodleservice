@@ -273,7 +273,7 @@ sql.connect(config).then(pool => {
                         }).catch(function (error) {
                             // {"exception":"moodle_exception","errorcode":"unknowncategory","message":"error\/unknowncategory"}
 
-                            logger.log(info,'HTTP : Moodle API : core_enrol_get_enrolled_users : '+courseid+' : error '+error);
+                            logger.log(info,'HTTP : Moodle API : core_enrol_get_enrolled_users : '+course.id+' : error '+error);
                         })
                     if (--i) {          // If i > 0, keep going
                         theLoop(i,items);       // Call the loop again, and pass it the current value of i
