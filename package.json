@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./client.js",
+    "start": "(node ./client.js || true) && node ./fix-course-enrol.js",
     "fixcourse-enrol": "node ./fix-course-enrol.js"
   },
   "dependencies": {
