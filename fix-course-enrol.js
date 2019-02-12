@@ -1,10 +1,12 @@
 const axios = require('axios');
 var config = require('./config/config')
+var logger = require('./config/winston')
+var info = 'info'
+var {insertTable_EnrolledCourse ,updateTable_state ,insertTable_Users} = require('./dao/dao')
 
 const sql = require('mssql')
 
 var axiosRetry = require('axios-retry');
-
 axiosRetry(axios, { retries: 10 });
 
 axios.defaults.baseURL = 'https://learning.minorfood.com';
@@ -18,70 +20,6 @@ var dbconfig = {
     options: {
         trustedConnection: true
     }
-}
-
-function insertTable_EnrolledCourse(course ,user ,pool){
-    return pool.request()
-        .input('courseid', sql.Int, course.id)
-        .input('userid', sql.Int, user.id)
-
-        .query('Insert into xx_Moodle_EnrolledCourses (courseid,userid) ' +
-            'values (@courseid,@userid)')
-        .then(result => {
-            //console.dir(result)
-        }).catch(err=>{})
-}
-
-function insertTable_Users(user ,pool){
-
-    return pool.request()
-        .input('id',sql.Int,user.id)
-        .query('select 1 from xx_Moodle_Users where id=@id')
-        .then(result =>{
-            //console.log(result.rowsAffected)
-            if(result.rowsAffected){
-                if(result.rowsAffected[0] == 0){
-                    //console.log('Insert user '+user.id)
-                    return pool.request()
-                        .input('id', sql.Int, user.id)
-                        .input('username', sql.NVarChar(255), user.username)
-                        .input('firstname', sql.NVarChar(255), user.firstname)
-                        .input('lastname', sql.NVarChar(255), user.lastname)
-                        .input('fullname', sql.NVarChar(500), user.fullname)
-                        .input('email', sql.NVarChar(255), user.email)
-                        .input('phone1', sql.NVarChar(255), user.phone1)
-                        .input('phone2', sql.NVarChar(255), user.phone2)
-                        .input('department', sql.NVarChar(255), user.department)
-                        .input('institution', sql.NVarChar(255), user.institution)
-                        .input('idnumber', sql.NVarChar(255), user.idnumber)
-                        .input('firstaccess', sql.Int, user.firstaccess)
-                        .input('lastaccess', sql.Int, user.lastaccess)
-
-                        .query('Insert into xx_Moodle_Users (id,username,firstname,lastname,fullname,email,phone1,phone2,department,institution,idnumber,firstaccess,lastaccess) ' +
-                            'values (@id,@username,@firstname,@lastname,@fullname,@email,@phone1,@phone2,@department,@institution,@idnumber,@firstaccess,@lastaccess)')
-                        .then(result => {
-                            //console.dir(result)
-                        })
-                }else{
-                    //console.log('Exist user '+user.id)
-                }
-            }
-
-        }).catch(err=>{})
-}
-
-function updateTable_state(type,id,status,note,pool){
-    return pool.request()
-        .input('type',sql.NVarChar(50),type)
-        .input('id',sql.Int,id)
-        .input('status',sql.NVarChar(50),status)
-        .input('note',sql.NVarChar(100),note)
-        .input('updatedate',sql.DateTime,new Date())
-
-        .query('Update xx_Moodle_State set status=@status ,note=@note ,updatedate=@updatedate where id=@id and type=@type')
-        .then(result =>{
-            //
-        }).catch(err=>{ console.log('DB : updateTable_state : NVarChar : error '+err)})
 }
 
 function selectCoursePending(pool){
@@ -163,10 +101,12 @@ do {
 
     setTimeout(function(){
         return doHttp();
-    },600000 * (5 * loop) * loop);
+    },(60000 * (loop-1)) * (5 * loop) * loop);
 
     loop++;
 
 }while(loop < 3);
 //pool.close();
-process.emit(0);
+setTimeout( function(){
+    process.emit(0);
+} ,180000)
