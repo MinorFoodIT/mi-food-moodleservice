@@ -218,7 +218,7 @@ function redoRequest(courseid,pool){
 */
 
 
-logger.log(info,'Start client service ,'+new Date().toLocaleString())
+logger.info('Start client service ,'+new Date().toLocaleString())
 
 sql.connect(config).then(pool => {
 
@@ -294,11 +294,12 @@ sql.connect(config).then(pool => {
         .then(function () {
             // always executed
             setTimeout(function(){
-                logger.log(info,'Delayed 10 minutes let calling web api to complete')
-            },600000);
-            pool.close()
-            logger.log(info,'Pool is closed and close program')
-            process.exit(0)
+                logger.log(info,'Delayed 60 minutes let calling web api to complete')
+                logger.log(info,'Pool is closed and close program')
+                process.exit(0)
+            },3600000);
+            //pool.close()
+
         });
 
 }).catch(err =>{

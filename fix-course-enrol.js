@@ -129,7 +129,7 @@ function selectCoursePending(pool){
 
                 })(course_data.length,course_data);
 
-                return course_data;
+                //return course_data;
 
             }else{
                 console.info('[]')
@@ -149,6 +149,7 @@ function doHttp(){
         var result = selectCoursePending(pool);
         console.log('dohttp return '+result);
         return result;
+
     }).catch(err =>{
         console.info('SQL Connect error '+err)
         pool.close()
