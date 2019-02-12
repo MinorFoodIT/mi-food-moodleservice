@@ -25,6 +25,13 @@ var logger = new winston.createLogger({
         new winston.transports.File(options.file),
         new winston.transports.Console(options.console)
     ],
+    format: winston.format.combine(
+        winston.format(function dynamicContent(info, opts) {
+            info.message = '' + info.message;
+            return info;
+        })(),
+        winston.format.simple()
+    ),
     exitOnError: false, // do not exit on handled exceptions
 });
 
