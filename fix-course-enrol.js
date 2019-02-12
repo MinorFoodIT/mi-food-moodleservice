@@ -157,16 +157,16 @@ function doHttp(){
     })
 }
 
-var loop = 0
+var loop = 1
 do {
     console.log('start function to check course is pendding ,'+new Date().toLocaleString());
 
     setTimeout(function(){
         return doHttp();
-    },600000);
+    },600000 * (5 * loop) * loop);
 
     loop++;
 
-}while( doHttp() != [] && loop < 6);
+}while(loop < 3);
 //pool.close();
 process.emit(0);
